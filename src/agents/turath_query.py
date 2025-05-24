@@ -105,12 +105,18 @@ class TurathQueryAgent(Agent): # Corrected: Only inherits from Agent
 def create_turath_query_agent(mcp_tools_instance=None) -> TurathQueryAgent:
     """
     Factory function to create a TurathQueryAgent instance.
-    mcp_tools_instance is no longer used for dynamic discovery here but kept for signature compatibility if needed elsewhere.
+    mcp_tools_instance is now used to provide tools to the agent.
     """
-    static_tools = []
+    agent_tools = []
+    if mcp_tools_instance:
+        agent_tools.append(mcp_tools_instance)
+    # If there are other static tools specific to TurathQueryAgent, 
+    # they can be added to agent_tools here.
+    # e.g., from ..tools.custom_tool import my_custom_tool
+    # agent_tools.append(my_custom_tool)
 
     agent = TurathQueryAgent(
-        tools=static_tools 
+        tools=agent_tools 
         # Any other necessary parameters can be passed here
     )
     return agent
