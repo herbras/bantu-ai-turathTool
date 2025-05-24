@@ -584,4 +584,11 @@ if __name__ == "__main__":
 
     port = 8001
     print(f"Memulai Turath MCP Server dengan SSE di http://localhost:{port}/sse")
-    mcp_server.run(transport="sse", port=port)
+    try:
+        mcp_server.run(transport="sse", port=port)
+    except KeyboardInterrupt:
+        print("\nTurath MCP Server dihentikan.")
+    finally:
+        # FastMCP's on_shutdown hooks should handle actual server resource cleanup.
+        # This message confirms the script's main execution block is exiting.
+        print("Proses shutdown server telah dimulai/selesai.")
