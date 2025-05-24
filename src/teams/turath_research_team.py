@@ -5,6 +5,7 @@ from ..agents.turath_team_manager import TurathTeamManagerAgent
 from agno.tools.mcp import MCPTools
 from ..config import settings
 from typing import List, Any
+from agno.models.openai.like import OpenAILike
 
 def get_turath_query_agent_instance(mcp_tools_instance: MCPTools = None) -> TurathQueryAgent:
     """Gets an instance of the TurathQueryAgent using the factory method."""
@@ -43,6 +44,13 @@ async def get_turath_research_team() -> Team:
     else:
         print(f"Member agent {turath_query_member_agent.name} does not have an initialize method.")
 
+    # Explicitly configure the model for the Team
+    team_llm = OpenAILike(
+        id=settings.default_model_id,
+        api_key=settings.openrouter_api_key,
+        base_url=settings.openrouter_base_url,
+    )
+
     turath_research_team = Team(
         name="Turath Research Team",
         members=[manager_agent, turath_query_member_agent],
@@ -50,7 +58,7 @@ async def get_turath_research_team() -> Team:
             "This team specializes in researching Islamic heritage (Turath) texts.",
             "The TurathQueryAgent is the primary expert for finding and detailing specific texts.",
             "The TurathTeamManagerAgent coordinates and delegates tasks."
-        ]
-        # model=... # Team itself might need a model for routing/coordination if mode is not just 'group'
+        ],
+        model=team_llm # Pass the explicitly configured model
     )
     return turath_research_team
