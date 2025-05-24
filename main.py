@@ -5,21 +5,23 @@ from src.services.agent_factory import AgentService
 from src.api.v1_router import create_v1_router
 from agno.tools.mcp import MCPTools
 from fastapi.middleware.cors import CORSMiddleware
+from src.config.settings import settings  # Corrected import path for settings
 
 # Global instance of AgentService
 agent_service = AgentService()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    mcp_server_url = "http://127.0.0.1:8001"
+    mcp_server_url = settings.mcp_server_url # Use the value from settings
     mcp_tools = None 
     try:
-        print(f"🔧 Initializing MCPTools with URL: {mcp_server_url}...")
-        mcp_tools = MCPTools(mcp_server_url=mcp_server_url)
+        print(f"🔧 Initializing MCPTools with URL: {mcp_server_url} using SSE transport...")
+        # Corrected instantiation based on DynamicToolDiscovery
+        mcp_tools = MCPTools(transport="sse", url=mcp_server_url)
         print("✅ MCPTools Initialized.")
-    except Exception as e:
-        print(f"Error initializing MCPTools: {e}. Using None.")
-        # mcp_tools remains None
+    except Exception as e_generic:
+        print(f"❌ A general error occurred during MCPTools initialization: {e_generic}. Dynamic tools may not work.")
+        mcp_tools = None # Ensure mcp_tools is None
 
     print("🚀 Initializing Agents...")
     await agent_service.initialize_agents(mcp_tools=mcp_tools) 
@@ -27,9 +29,9 @@ async def lifespan(app: FastAPI):
     print("✅ Agents Initialized.")
 
     initialized_agent_instances = agent_service.get_all_agents()
-    print(f"Retrieved {len(initialized_agent_instances)} agent instances from AgentService.")
+    print(f"Retrieved {len(initialized_agent_instances)} agent instances from AgentService: {initialized_agent_instances}") 
 
-    v1_api_router = create_v1_router(initialized_agents=initialized_agent_instances)
+    v1_api_router = await create_v1_router(initialized_agents=initialized_agent_instances)
     app.include_router(v1_api_router)
     print("✅ V1 API Router with Playground included.")
 

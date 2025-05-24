@@ -17,9 +17,11 @@ class AgentService:
         """Initialize all agents and teams"""
         try:
             # Create agents
-            turath_query_agent = create_turath_query_agent(mcp_tools)
+            # TurathQueryAgent no longer uses mcp_tools for dynamic discovery
+            turath_query_agent = create_turath_query_agent(mcp_tools_instance=None) 
             await turath_query_agent.initialize()
 
+            # TurathWriterAgent and FactCheckerAgent might use mcp_tools directly or for other config
             turath_writer_agent = create_turath_writer_agent(mcp_tools)
             fact_checker_agent = create_fact_checker_agent(mcp_tools)
 
