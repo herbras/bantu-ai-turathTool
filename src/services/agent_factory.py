@@ -1,6 +1,7 @@
 import logging
 from typing import List
 from agno.tools.mcp import MCPTools
+from ..tools.mcp_wrapper import create_individual_mcp_tools
 from ..agents.turath_query import create_turath_query_agent
 from ..agents.turath_writer import create_turath_writer_agent
 from ..agents.fact_checker import create_fact_checker_agent
@@ -16,12 +17,12 @@ class AgentService:
     async def initialize_agents(self, mcp_tools: MCPTools):
         """Initialize all agents and teams"""
         try:
-            # Create agents
-            # TurathQueryAgent no longer uses mcp_tools for dynamic discovery
-            turath_query_agent = create_turath_query_agent(mcp_tools_instance=None) 
+            # Create agents with MCPTools object directly (Agno will handle the tool discovery)
+            self.logger.info("Creating agents with MCPTools...")
+            turath_query_agent = create_turath_query_agent(mcp_tools_instance=mcp_tools) 
             await turath_query_agent.initialize()
 
-            # TurathWriterAgent and FactCheckerAgent might use mcp_tools directly or for other config
+            # TurathWriterAgent and FactCheckerAgent also get MCPTools
             turath_writer_agent = create_turath_writer_agent(mcp_tools)
             fact_checker_agent = create_fact_checker_agent(mcp_tools)
 

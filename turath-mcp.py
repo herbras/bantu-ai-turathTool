@@ -48,6 +48,33 @@ async def shutdown_event():
 mcp_server = FastMCP(name="TurathMCPServer", on_shutdown=[shutdown_event])
 
 
+def _normalize_arabic_search_term(search_term: str) -> list:
+    """
+    Create multiple search variants for Arabic text to handle definite articles and variations.
+    Returns a list of search patterns to try.
+    """
+    search_patterns = []
+    
+    # Original search term
+    search_patterns.append(f"%{search_term}%")
+    
+    # Split into words and create patterns for individual words
+    words = search_term.strip().split()
+    for word in words:
+        if len(word) >= 2:  # Only for words with 2+ characters
+            search_patterns.append(f"%{word}%")
+    
+    # If search doesn't start with ال, try with ال prefix
+    if not search_term.startswith("ال"):
+        search_patterns.append(f"%ال{search_term}%")
+        # Also try adding ال to each word
+        for word in words:
+            if len(word) >= 2 and not word.startswith("ال"):
+                search_patterns.append(f"%ال{word}%")
+    
+    return search_patterns
+
+
 @mcp_server.tool()
 async def get_filter_ids(
     category_name: Annotated[
@@ -63,37 +90,62 @@ async def get_filter_ids(
     """
     Mencari ID kategori dan/atau penulis dari database lokal berdasarkan nama.
     Mengembalikan dictionary dengan 'category_ids' dan/atau 'author_ids' (berupa string ID yang dipisahkan koma).
+    Enhanced with better Arabic text matching.
     """
     results = {"category_ids": None, "author_ids": None}
     found_something = False
 
     if category_name:
-        cat_query_param = f"%{category_name}%"
-        cat_rows = await query_local_db(
-            "SELECT id FROM cats WHERE name LIKE ?", (cat_query_param,)
-        )
+        # Try multiple search patterns for better Arabic matching
+        search_patterns = _normalize_arabic_search_term(category_name)
+        cat_rows = []
+        
+        for pattern in search_patterns:
+            potential_rows = await query_local_db(
+                "SELECT id, name FROM cats WHERE name LIKE ?", (pattern,)
+            )
+            if potential_rows:
+                # Add rows that aren't already in the results
+                existing_ids = set(row[0] for row in cat_rows)
+                for row in potential_rows:
+                    if row[0] not in existing_ids:
+                        cat_rows.append(row)
+        
         if cat_rows:
             results["category_ids"] = ",".join([str(row[0]) for row in cat_rows])
             found_something = True
+            matched_names = [row[1] for row in cat_rows]
             print(
-                f"MCP Server: ID kategori ditemukan \'{results['category_ids']}\' untuk nama \'{category_name}\'"
+                f"MCP Server: ID kategori ditemukan \'{results['category_ids']}\' untuk nama \'{category_name}\'. Matches: {matched_names}"
             )
         else:
-            print(f"MCP Server: Tidak ada ID kategori ditemukan untuk nama \'{category_name}\'")
+            print(f"MCP Server: Tidak ada ID kategori ditemukan untuk nama \'{category_name}\' dengan semua pola pencarian.")
 
     if author_name:
-        author_query_param = f"%{author_name}%"
-        author_rows = await query_local_db(
-            "SELECT id FROM authors WHERE name LIKE ?", (author_query_param,)
-        )
+        # Try multiple search patterns for authors too
+        search_patterns = _normalize_arabic_search_term(author_name)
+        author_rows = []
+        
+        for pattern in search_patterns:
+            potential_rows = await query_local_db(
+                "SELECT id, name FROM authors WHERE name LIKE ?", (pattern,)
+            )
+            if potential_rows:
+                # Add rows that aren't already in the results
+                existing_ids = set(row[0] for row in author_rows)
+                for row in potential_rows:
+                    if row[0] not in existing_ids:
+                        author_rows.append(row)
+        
         if author_rows:
             results["author_ids"] = ",".join([str(row[0]) for row in author_rows])
             found_something = True
+            matched_names = [row[1] for row in author_rows]
             print(
-                f"MCP Server: ID penulis ditemukan \'{results['author_ids']}\' untuk nama \'{author_name}\'"
+                f"MCP Server: ID penulis ditemukan \'{results['author_ids']}\' untuk nama \'{author_name}\'. Matches: {matched_names}"
             )
         else:
-            print(f"MCP Server: Tidak ada ID penulis ditemukan untuk nama \'{author_name}\'")
+            print(f"MCP Server: Tidak ada ID penulis ditemukan untuk nama \'{author_name}\' dengan semua pola pencarian.")
 
     if not found_something:
         return {

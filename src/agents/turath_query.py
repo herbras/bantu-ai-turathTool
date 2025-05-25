@@ -65,7 +65,7 @@ class TurathQueryAgent(Agent): # Corrected: Only inherits from Agent
             add_history_to_messages=kwargs.pop("add_history_to_messages", True),
             num_history_responses=kwargs.pop("num_history_responses", settings.num_history_responses),
             markdown=kwargs.pop("markdown", True),
-            reasoning=kwargs.pop("reasoning", True),
+            reasoning=kwargs.pop("reasoning", False),
             show_tool_calls=kwargs.pop("show_tool_calls", True),
             **kwargs
         )
@@ -105,18 +105,22 @@ class TurathQueryAgent(Agent): # Corrected: Only inherits from Agent
 def create_turath_query_agent(mcp_tools_instance=None) -> TurathQueryAgent:
     """
     Factory function to create a TurathQueryAgent instance.
-    mcp_tools_instance is now used to provide tools to the agent.
+    mcp_tools_instance should be an MCPTools object.
     """
     agent_tools = []
     if mcp_tools_instance:
+        mcp_tools_instance.include_tools = [
+            'get_filter_ids', 
+            'search_library', 
+            'list_all_categories',
+            'get_book_details'
+        ]
         agent_tools.append(mcp_tools_instance)
-    # If there are other static tools specific to TurathQueryAgent, 
-    # they can be added to agent_tools here.
-    # e.g., from ..tools.custom_tool import my_custom_tool
-    # agent_tools.append(my_custom_tool)
-
+    
     agent = TurathQueryAgent(
-        tools=agent_tools 
-        # Any other necessary parameters can be passed here
+        tools=agent_tools,
+        # Add debug settings to see what tools are actually available
+        show_tool_calls=True,
+        debug_mode=True
     )
     return agent

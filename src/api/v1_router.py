@@ -19,14 +19,8 @@ async def create_v1_router(initialized_agents: List[Agent]) -> APIRouter:
         """Check the health of the API"""
         return {"status": "success"}
 
-    # Instantiate teams
-    # get_turath_research_team will handle its own agent instantiations internally.
-    print("Creating Turath Research Team...")
     turath_research_team = await get_turath_research_team()
-    print("Turath Research Team created.")
 
-    print(f"Agents passed to Playground: {initialized_agents}") 
-    print(f"Teams passed to Playground: {[turath_research_team]}") 
 
     # Create an agno.playground.Playground instance
     playground = Playground(
