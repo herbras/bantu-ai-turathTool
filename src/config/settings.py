@@ -10,6 +10,9 @@ class Settings:
             "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"
         )
         
+        # Tavily API Key for web search (optional)
+        self.tavily_api_key: str = os.getenv("TAVILY_API_KEY", "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")
+        
         # Database
         self.agent_storage_db: str = os.getenv("AGENT_STORAGE_DB", "tmp/agents.db")
         

@@ -20,7 +20,10 @@ async def lifespan(app: FastAPI):
         print("✅ MCPTools Initialized and connected.")
 
         print("🚀 Initializing Agents...")
-        await agent_service.initialize_agents(mcp_tools=mcp_tools) 
+        await agent_service.initialize_agents(
+            mcp_tools=mcp_tools,
+            tavily_api_key=settings.tavily_api_key  # Add Tavily API key support
+        ) 
         app.state.agent_service = agent_service 
         print("✅ Agents Initialized.")
 
