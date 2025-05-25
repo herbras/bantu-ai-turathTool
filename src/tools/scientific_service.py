@@ -75,8 +75,8 @@ class TurathScientificTools(Toolkit):
             # Enhance query for broader scientific context
             enhanced_query = f"{query} ethics philosophy"
             
-            # Use the arxiv tool's search function
-            results = self.arxiv_tools.search_arxiv(enhanced_query, max_results=max_results)
+            # Use the correct ArxivTools method with correct parameter name
+            results = self.arxiv_tools.search_arxiv_and_return_articles(enhanced_query, num_articles=max_results)
             
             # Add Islamic context note
             context_note = self._add_islamic_scientific_context(query)

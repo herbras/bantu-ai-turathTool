@@ -27,7 +27,7 @@ class Settings:
         self.cors_origins: List[str] = [origin.strip() for origin in cors_origins_str.split(",")]
         
         # Model Configuration
-        self.default_model_id: str = "openai/gpt-4o-mini"
+        self.default_model_id: str = "google/gemini-2.5-flash-preview-05-20:thinking"
         self.openrouter_base_url: str = "https://openrouter.ai/api/v1"
         
         # Agent Configuration
