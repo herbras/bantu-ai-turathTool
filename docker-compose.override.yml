@@ -2,24 +2,79 @@
 # This file provides development overrides for docker-compose.yml
 # Use: docker-compose up (automatically includes this file)
 
-version: '3.8'
-
 services:
   ai-agent:
     volumes:
-      # Mount source code for hot reloading in development
       - ./src:/app/src:ro
       - ./main.py:/app/main.py:ro
     environment:
       - FASTAPI_ENV=development
       - FASTAPI_DEBUG=true
+      - UV_CACHE_DIR=/tmp/uv-cache
     command: ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   mcp-server:
     volumes:
-      # Mount MCP server code for development
-      - ./turath-mcp.py:/app/turath-mcp.py:ro
+      - ./Tools/turathMCP/turath_mcp.py:/app/turath-mcp.py:ro
       - ./turath_metadata.db:/app/turath_metadata.db:rw
     environment:
       - PYTHONUNBUFFERED=1
-      - LOG_LEVEL=debug 
+      - LOG_LEVEL=debug
+      - UV_CACHE_DIR=/tmp/uv-cache
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: turath-mcp-server
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./turath_metadata.db:/app/turath_metadata.db:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - UV_CACHE_DIR=/tmp/uv-cache
+    networks:
+      - ai-agent-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ai-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: turath-ai-agent
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - UV_CACHE_DIR=/tmp/uv-cache
+      - MCP_SERVER_URL=http://mcp-server:8001/sse
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    networks:
+      - ai-agent-network
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  ai-agent-network:
+    driver: bridge
+    name: ai-agent-network
+
+volumes:
+  turath-db:
+    driver: local 

@@ -1,0 +1,5 @@
+fastmcp==2.3.3
+httpx==0.28.1
+pydantic==2.11.4
+uvicorn==0.34.2
+aiofiles==24.2.0

@@ -1,18 +1,21 @@
 # Multi-stage build for FastAPI Agent
-FROM python:3.12-slim as base
+FROM python:3.12-alpine as base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    UV_CACHE_DIR=/tmp/uv-cache
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     gcc \
     g++ \
+    musl-dev \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/cache/apk/*
+
+# Install uv
+RUN pip install --no-cache-dir uv
 
 # Set work directory
 WORKDIR /app
@@ -20,15 +23,15 @@ WORKDIR /app
 # Copy dependency files
 COPY requirements.txt pyproject.toml ./
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies using uv
+RUN uv pip install --system --no-cache -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
 COPY main.py ./
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
+RUN adduser -D -s /bin/sh app && chown -R app:app /app
 USER app
 
 # Expose port
