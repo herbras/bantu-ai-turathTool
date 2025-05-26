@@ -11,7 +11,7 @@ services:
 
   mcp-server:
     volumes:
-      - ./Tools/turathMCP/turath_mcp.py:/app/turath-mcp.py:ro
+      - ./turath-mcp.py:/app/turath-mcp.py:ro
       - ./turath_metadata.db:/app/turath_metadata.db:rw
     environment:
       - PYTHONUNBUFFERED=1
