@@ -99,3 +99,6 @@ uvloop==0.21.0
 watchfiles==1.0.5
 websockets==15.0.1
 yfinance==0.2.61
+arxiv>=2.1.0
+pypdf>=3.0.0
+tavily-python>=0.3.0
