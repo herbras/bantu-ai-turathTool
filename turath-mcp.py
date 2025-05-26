@@ -54,16 +54,16 @@ def _normalize_arabic_search_term(search_term: str) -> list:
     Returns a list of search patterns to try.
     """
     search_patterns = []
-    
+
     # Original search term
     search_patterns.append(f"%{search_term}%")
-    
+
     # Split into words and create patterns for individual words
     words = search_term.strip().split()
     for word in words:
         if len(word) >= 2:  # Only for words with 2+ characters
             search_patterns.append(f"%{word}%")
-    
+
     # If search doesn't start with ال, try with ال prefix
     if not search_term.startswith("ال"):
         search_patterns.append(f"%ال{search_term}%")
@@ -71,7 +71,7 @@ def _normalize_arabic_search_term(search_term: str) -> list:
         for word in words:
             if len(word) >= 2 and not word.startswith("ال"):
                 search_patterns.append(f"%ال{word}%")
-    
+
     return search_patterns
 
 
@@ -99,7 +99,7 @@ async def get_filter_ids(
         # Try multiple search patterns for better Arabic matching
         search_patterns = _normalize_arabic_search_term(category_name)
         cat_rows = []
-        
+
         for pattern in search_patterns:
             potential_rows = await query_local_db(
                 "SELECT id, name FROM cats WHERE name LIKE ?", (pattern,)
@@ -110,22 +110,24 @@ async def get_filter_ids(
                 for row in potential_rows:
                     if row[0] not in existing_ids:
                         cat_rows.append(row)
-        
+
         if cat_rows:
             results["category_ids"] = ",".join([str(row[0]) for row in cat_rows])
             found_something = True
             matched_names = [row[1] for row in cat_rows]
             print(
-                f"MCP Server: ID kategori ditemukan \'{results['category_ids']}\' untuk nama \'{category_name}\'. Matches: {matched_names}"
+                f"MCP Server: ID kategori ditemukan '{results['category_ids']}' untuk nama '{category_name}'. Matches: {matched_names}"
             )
         else:
-            print(f"MCP Server: Tidak ada ID kategori ditemukan untuk nama \'{category_name}\' dengan semua pola pencarian.")
+            print(
+                f"MCP Server: Tidak ada ID kategori ditemukan untuk nama '{category_name}' dengan semua pola pencarian."
+            )
 
     if author_name:
         # Try multiple search patterns for authors too
         search_patterns = _normalize_arabic_search_term(author_name)
         author_rows = []
-        
+
         for pattern in search_patterns:
             potential_rows = await query_local_db(
                 "SELECT id, name FROM authors WHERE name LIKE ?", (pattern,)
@@ -136,16 +138,18 @@ async def get_filter_ids(
                 for row in potential_rows:
                     if row[0] not in existing_ids:
                         author_rows.append(row)
-        
+
         if author_rows:
             results["author_ids"] = ",".join([str(row[0]) for row in author_rows])
             found_something = True
             matched_names = [row[1] for row in author_rows]
             print(
-                f"MCP Server: ID penulis ditemukan \'{results['author_ids']}\' untuk nama \'{author_name}\'. Matches: {matched_names}"
+                f"MCP Server: ID penulis ditemukan '{results['author_ids']}' untuk nama '{author_name}'. Matches: {matched_names}"
             )
         else:
-            print(f"MCP Server: Tidak ada ID penulis ditemukan untuk nama \'{author_name}\' dengan semua pola pencarian.")
+            print(
+                f"MCP Server: Tidak ada ID penulis ditemukan untuk nama '{author_name}' dengan semua pola pencarian."
+            )
 
     if not found_something:
         return {
@@ -377,7 +381,9 @@ async def search_library(
         print("MCP Server: Berhasil memproses permintaan dan memperkaya referensi.")
         return result_json
     except httpx.HTTPStatusError as exc:
-        error_details = f"Kesalahan API: {exc.response.status_code}. URL: {exc.request.url}"
+        error_details = (
+            f"Kesalahan API: {exc.response.status_code}. URL: {exc.request.url}"
+        )
         response_text = ""
         try:
             response_text = exc.response.text
@@ -394,9 +400,7 @@ async def search_library(
             "response_text": response_text,
         }
     except httpx.RequestError as exc:
-        error_details = (
-            f"Kesalahan Permintaan: Gagal terhubung ke API Turath. URL: {exc.request.url}"
-        )
+        error_details = f"Kesalahan Permintaan: Gagal terhubung ke API Turath. URL: {exc.request.url}"
         print(f"MCP Server: {error_details} - Pengecualian: {exc}")
         return {
             "error": error_details,

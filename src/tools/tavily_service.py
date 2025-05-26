@@ -10,7 +10,9 @@ from agno.utils.log import logger
 try:
     from tavily import TavilyClient
 except ImportError:
-    raise ImportError("`tavily-python` not installed. Please install using `pip install tavily-python`")
+    raise ImportError(
+        "`tavily-python` not installed. Please install using `pip install tavily-python`"
+    )
 
 
 class TurathTavilyTools(Toolkit):
@@ -18,7 +20,7 @@ class TurathTavilyTools(Toolkit):
     Enhanced TavilyTools specifically designed for Islamic research and Turath studies.
     Provides web search capabilities to complement the internal MCP database.
     """
-    
+
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -51,7 +53,7 @@ class TurathTavilyTools(Toolkit):
 
     def search_islamic_content_web(self, query: str, max_results: int = 5) -> str:
         """Search the web for Islamic content, scholarly articles, and references.
-        Use this to find additional Islamic sources, contemporary scholarly opinions, 
+        Use this to find additional Islamic sources, contemporary scholarly opinions,
         or cross-references that complement the internal Turath database.
 
         Args:
@@ -61,18 +63,21 @@ class TurathTavilyTools(Toolkit):
         Returns:
             str: Formatted search results with Islamic sources and references.
         """
-        
+
         # Enhance query for Islamic content
         enhanced_query = f"{query} Islam Islamic scholar fiqh hadith Quran"
-        
+
         response = self.client.search(
-            query=enhanced_query, 
-            search_depth=self.search_depth, 
-            include_answer=self.include_answer, 
-            max_results=max_results
+            query=enhanced_query,
+            search_depth=self.search_depth,
+            include_answer=self.include_answer,
+            max_results=max_results,
         )
 
-        clean_response: Dict[str, Any] = {"query": query, "enhanced_query": enhanced_query}
+        clean_response: Dict[str, Any] = {
+            "query": query,
+            "enhanced_query": enhanced_query,
+        }
         if "answer" in response:
             clean_response["answer"] = response["answer"]
 
@@ -84,7 +89,7 @@ class TurathTavilyTools(Toolkit):
                 "url": result["url"],
                 "content": result["content"],
                 "score": result["score"],
-                "source_type": self._identify_source_type(result["url"])
+                "source_type": self._identify_source_type(result["url"]),
             }
             current_token_count += len(json.dumps(_result))
             if current_token_count > self.max_tokens:
@@ -93,7 +98,11 @@ class TurathTavilyTools(Toolkit):
         clean_response["results"] = clean_results
 
         if self.format == "json":
-            return json.dumps(clean_response) if clean_response else "No Islamic web references found."
+            return (
+                json.dumps(clean_response)
+                if clean_response
+                else "No Islamic web references found."
+            )
         elif self.format == "markdown":
             return self._format_islamic_markdown(query, clean_response)
 
@@ -108,12 +117,12 @@ class TurathTavilyTools(Toolkit):
             str: Contextual information about the Islamic topic.
         """
         enhanced_query = f"{query} Islam Islamic scholarship fiqh"
-        
+
         return self.client.get_search_context(
-            query=enhanced_query, 
-            search_depth=self.search_depth, 
-            max_tokens=self.max_tokens, 
-            include_answer=self.include_answer
+            query=enhanced_query,
+            search_depth=self.search_depth,
+            max_tokens=self.max_tokens,
+            include_answer=self.include_answer,
         )
 
     def _identify_source_type(self, url: str) -> str:
@@ -125,37 +134,52 @@ class TurathTavilyTools(Toolkit):
         # ------------------------------------------------
         # 1) FATWA / Q&A  (incl. MUI & rumahfiqih)
         # ------------------------------------------------
-        if any(d in netloc for d in [
-            'dar-alifta.org', 'alifta.gov.sa', 'islam.gov.kw',
-            'islamqa.info', 'binbaz.org.sa', 'binbaz.co.uk',
-            'uthaymeen.com', 'binothaimeen.net', 'binuthaymin.co.uk',
-            'dralfawzann.com', 'albaani', 'thealbaani.site',
-            'fatwaonline.net', 'islamweb.net', 'abdurrahman.org',
-            'mui.or.id', 'rumahfiqih.com', 'rumahfiqih'
-        ]):
+        if any(
+            d in netloc
+            for d in [
+                "dar-alifta.org",
+                "alifta.gov.sa",
+                "islam.gov.kw",
+                "islamqa.info",
+                "binbaz.org.sa",
+                "binbaz.co.uk",
+                "uthaymeen.com",
+                "binothaimeen.net",
+                "binuthaymin.co.uk",
+                "dralfawzann.com",
+                "albaani",
+                "thealbaani.site",
+                "fatwaonline.net",
+                "islamweb.net",
+                "abdurrahman.org",
+                "mui.or.id",
+                "rumahfiqih.com",
+                "rumahfiqih",
+            ]
+        ):
             return "Fatwa/Q&A Site"
 
         # ------------------------------------------------
         # 2) DORAR.NET  –– granular by sub-path (check BEFORE generic hadith)
         # ------------------------------------------------
-        if 'dorar.net' in netloc:
+        if "dorar.net" in netloc:
             # mapping path prefix ➜ label
             dorar_map = {
-                r'^/tafseer':        "Tafsir Encyclopedia",
-                r'^/hadith':         "Hadith Encyclopedia",
-                r'^/aqeeda':         "Aqidah Encyclopedia",
-                r'^/adyan':          "Religions Encyclopedia",
-                r'^/frq':            "Firaq (Sects) Encyclopedia",
-                r'^/feqhia':         "Fiqh Encyclopedia",
-                r'^/osolfeqh':       "Usul Fiqh Encyclopedia",
-                r'^/qfiqhia':        "Qawaid Fiqhiyya Encyclopedia",
-                r'^/alakhlaq':       "Akhlaq Encyclopedia",
-                r'^/history':        "History Encyclopedia",
-                r'^/aadab':          "Adab Shar'iyyah Encyclopedia",
-                r'^/arabia':         "Arabic Language Encyclopedia",
-                r'^/fake-hadith':    "Weak & Fabricated Hadiths",
-                r'^/apps':           "Islamic App Page",
-                r'^/store':          "Dorar Store"
+                r"^/tafseer": "Tafsir Encyclopedia",
+                r"^/hadith": "Hadith Encyclopedia",
+                r"^/aqeeda": "Aqidah Encyclopedia",
+                r"^/adyan": "Religions Encyclopedia",
+                r"^/frq": "Firaq (Sects) Encyclopedia",
+                r"^/feqhia": "Fiqh Encyclopedia",
+                r"^/osolfeqh": "Usul Fiqh Encyclopedia",
+                r"^/qfiqhia": "Qawaid Fiqhiyya Encyclopedia",
+                r"^/alakhlaq": "Akhlaq Encyclopedia",
+                r"^/history": "History Encyclopedia",
+                r"^/aadab": "Adab Shar'iyyah Encyclopedia",
+                r"^/arabia": "Arabic Language Encyclopedia",
+                r"^/fake-hadith": "Weak & Fabricated Hadiths",
+                r"^/apps": "Islamic App Page",
+                r"^/store": "Dorar Store",
             }
             for pattern, label in dorar_map.items():
                 if re.match(pattern, path):
@@ -166,51 +190,78 @@ class TurathTavilyTools(Toolkit):
         # ------------------------------------------------
         # 3) HADITH COLLECTION  – specific domains only (after Dorar check)
         # ------------------------------------------------
-        if any(d in netloc for d in ['sunnah.com']) or \
-           any(pattern in url_lc for pattern in ['bukhari', 'muslim']) and 'hadith' in url_lc:
+        if (
+            any(d in netloc for d in ["sunnah.com"])
+            or any(pattern in url_lc for pattern in ["bukhari", "muslim"])
+            and "hadith" in url_lc
+        ):
             return "Hadith Collection"
 
         # ------------------------------------------------
         # 4) QURANIC RESOURCE
         # ------------------------------------------------
-        if any(d in netloc for d in ['quran.com', 'tanzil.net', 'corpus.quran.com']):
+        if any(d in netloc for d in ["quran.com", "tanzil.net", "corpus.quran.com"]):
             return "Quranic Resource"
 
         # ------------------------------------------------
         # 5) ISLAMIC DIGITAL LIBRARY – PDF / eBook
         # ------------------------------------------------
-        if any(d in netloc for d in [
-            'shamela.ws', 'shamela.org', 'amuslim.org',
-            'kalamullah.net', 'islamhouse.com',
-            'waqfeya.net',                 # مكتبة الوقفية
-        ]):
+        if any(
+            d in netloc
+            for d in [
+                "shamela.ws",
+                "shamela.org",
+                "amuslim.org",
+                "kalamullah.net",
+                "islamhouse.com",
+                "waqfeya.net",  # مكتبة الوقفية
+            ]
+        ):
             return "Islamic Digital Library"
 
         # ------------------------------------------------
         # 6) ISLAMIC MULTIMEDIA
         # ------------------------------------------------
-        if any(d in netloc for d in [
-            'yufid.com', 'kajian.net', 'radiotarbiyahsunnah.com',
-            'islamway.net', 'ar.islamway.net',   # إسلام ويب مالتيميديا
-        ]):
+        if any(
+            d in netloc
+            for d in [
+                "yufid.com",
+                "kajian.net",
+                "radiotarbiyahsunnah.com",
+                "islamway.net",
+                "ar.islamway.net",  # إسلام ويب مالتيميديا
+            ]
+        ):
             return "Islamic Multimedia"
 
         # ------------------------------------------------
         # 7) ISLAMIC PORTAL / ARTICLE HUB
         # ------------------------------------------------
-        if any(d in netloc for d in [
-            'rumaysho.com', 'muslim.or.id', 'almanhaj.or.id',
-            'salafy.or.id', 'konsultasisyariah.com', 'bimbinganislam.com',
-            'aslibumiayu.net', 'mawdoo3.com', 'alukah.net',
-            'spubs.com', 'troid.org', 'salafiri.com',
-            'islamicfinder.org', 'islamicity.org'
-        ]):
+        if any(
+            d in netloc
+            for d in [
+                "rumaysho.com",
+                "muslim.or.id",
+                "almanhaj.or.id",
+                "salafy.or.id",
+                "konsultasisyariah.com",
+                "bimbinganislam.com",
+                "aslibumiayu.net",
+                "mawdoo3.com",
+                "alukah.net",
+                "spubs.com",
+                "troid.org",
+                "salafiri.com",
+                "islamicfinder.org",
+                "islamicity.org",
+            ]
+        ):
             return "Islamic Portal"
 
         # ------------------------------------------------
         # 8) ACADEMIC PAPER
         # ------------------------------------------------
-        if any(d in netloc for d in ['academia.edu', 'jstor', 'doi.org']):
+        if any(d in netloc for d in ["academia.edu", "jstor", "doi.org"]):
             return "Academic Paper"
 
         # ------------------------------------------------
@@ -221,13 +272,13 @@ class TurathTavilyTools(Toolkit):
     def _format_islamic_markdown(self, query: str, response: Dict[str, Any]) -> str:
         """Format search results specifically for Islamic content"""
         _markdown = f"# Web References for: {query}\n\n"
-        
+
         if "answer" in response:
             _markdown += "## Summary\n"
             _markdown += f"{response.get('answer')}\n\n"
-            
+
         _markdown += "## Additional Web Sources\n\n"
-        
+
         for i, result in enumerate(response["results"], 1):
             source_type = result.get("source_type", "Web Source")
             _markdown += f"### {i}. [{result['title']}]({result['url']})\n"
@@ -235,5 +286,5 @@ class TurathTavilyTools(Toolkit):
             _markdown += f"**Relevance Score:** {result['score']:.2f}  \n"
             _markdown += f"{result['content']}\n\n"
             _markdown += "---\n\n"
-            
-        return _markdown 
+
+        return _markdown

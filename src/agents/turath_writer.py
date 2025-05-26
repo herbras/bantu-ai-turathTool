@@ -61,7 +61,7 @@ def create_turath_writer_agent(mcp_tools) -> Agent:
         name="Turath Article Writer Agent",
         instructions=TurathWriterAgentConfig.get_instructions(),
         table_name="turath_article_writer_agent",
-        tools=[mcp_tools]
+        tools=[mcp_tools],
     )
-    
-    return AgentFactory.create_agent(config) 
+
+    return AgentFactory.create_agent(config)
