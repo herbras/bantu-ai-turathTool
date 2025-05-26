@@ -4,7 +4,8 @@ FROM python:3.12-alpine as base
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    UV_CACHE_DIR=/tmp/uv-cache
+    UV_CACHE_DIR=/tmp/uv-cache \
+    MCP_HOST=0.0.0.0
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -46,7 +47,7 @@ EXPOSE 8001
 
 # Health check for MCP server
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8001/sse || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:8001/sse || exit 1
 
 # Run the MCP server
 CMD ["python", "turath-mcp.py"] 
