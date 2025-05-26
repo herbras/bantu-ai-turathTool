@@ -4,8 +4,7 @@ FROM python:3.12-alpine as base
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    UV_CACHE_DIR=/tmp/uv-cache
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -14,6 +13,9 @@ RUN apk add --no-cache \
     curl \
     sqlite \
     && rm -rf /var/cache/apk/*
+
+# Install uv
+RUN pip install --no-cache-dir uv
 
 # Set work directory
 WORKDIR /app
@@ -24,18 +26,18 @@ fastmcp==2.3.3
 httpx==0.28.1
 pydantic==2.11.4
 uvicorn==0.34.2
-aiofiles==24.2.0
+aiofiles==24.1.0
 EOF
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-mcp.txt
+# Install Python dependencies using uv
+RUN uv pip install --system --no-cache -r requirements-mcp.txt
 
 # Copy MCP server and database
 COPY turath-mcp.py ./
 COPY turath_metadata.db ./
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash mcp && \
+RUN adduser -D -s /bin/sh mcp && \
     chown -R mcp:mcp /app
 USER mcp
 
@@ -44,7 +46,7 @@ EXPOSE 8001
 
 # Health check for MCP server
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8001/sse || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8001/sse || exit 1
 
 # Run the MCP server
 CMD ["python", "turath-mcp.py"] 
