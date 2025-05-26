@@ -76,12 +76,10 @@ async def get_filter_ids(
             results["category_ids"] = ",".join([str(row[0]) for row in cat_rows])
             found_something = True
             print(
-                f"MCP Server: ID kategori ditemukan '{results['category_ids']}' untuk nama '{category_name}'"
+                f"MCP Server: ID kategori ditemukan \'{results['category_ids']}\' untuk nama \'{category_name}\'"
             )
         else:
-            print(
-                f"MCP Server: Tidak ada ID kategori ditemukan untuk nama '{category_name}'"
-            )
+            print(f"MCP Server: Tidak ada ID kategori ditemukan untuk nama \'{category_name}\'")
 
     if author_name:
         author_query_param = f"%{author_name}%"
@@ -92,12 +90,10 @@ async def get_filter_ids(
             results["author_ids"] = ",".join([str(row[0]) for row in author_rows])
             found_something = True
             print(
-                f"MCP Server: ID penulis ditemukan '{results['author_ids']}' untuk nama '{author_name}'"
+                f"MCP Server: ID penulis ditemukan \'{results['author_ids']}\' untuk nama \'{author_name}\'"
             )
         else:
-            print(
-                f"MCP Server: Tidak ada ID penulis ditemukan untuk nama '{author_name}'"
-            )
+            print(f"MCP Server: Tidak ada ID penulis ditemukan untuk nama \'{author_name}\'")
 
     if not found_something:
         return {
@@ -329,9 +325,7 @@ async def search_library(
         print("MCP Server: Berhasil memproses permintaan dan memperkaya referensi.")
         return result_json
     except httpx.HTTPStatusError as exc:
-        error_details = (
-            f"Kesalahan API: {exc.response.status_code}. URL: {exc.request.url}"
-        )
+        error_details = f"Kesalahan API: {exc.response.status_code}. URL: {exc.request.url}"
         response_text = ""
         try:
             response_text = exc.response.text
@@ -348,7 +342,9 @@ async def search_library(
             "response_text": response_text,
         }
     except httpx.RequestError as exc:
-        error_details = f"Kesalahan Permintaan: Gagal terhubung ke API Turath. URL: {exc.request.url}"
+        error_details = (
+            f"Kesalahan Permintaan: Gagal terhubung ke API Turath. URL: {exc.request.url}"
+        )
         print(f"MCP Server: {error_details} - Pengecualian: {exc}")
         return {
             "error": error_details,

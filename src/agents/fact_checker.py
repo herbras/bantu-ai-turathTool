@@ -68,7 +68,7 @@ def create_fact_checker_agent(mcp_tools) -> Agent:
         name="Turath Fact-Checker Agent",
         instructions=FactCheckerAgentConfig.get_instructions(),
         table_name="turath_fact_checker_agent",
-        tools=[mcp_tools],
+        tools=[mcp_tools]
     )
-
-    return AgentFactory.create_agent(config)
+    
+    return AgentFactory.create_agent(config) 

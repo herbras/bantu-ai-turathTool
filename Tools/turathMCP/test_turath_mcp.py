@@ -100,18 +100,18 @@ async def test_get_book_details_success_with_pdf_links(mocker):
     # Mock respons dari API Turath.io, based on databuku.json
     api_pdf_links_data = {
         "files": ["mnaia.pdf"],
-        "root": "علوم القرآن/مسائل نافع بن الأزرق عن ابن عباس - ت الدالي - ط الجفان والجابي",
+        "root": "علوم القرآن/مسائل نافع بن الأزرق عن ابن عباس - ت الدالي - ط الجفان والجابي"
     }
     mock_api_response_json = {
         "id": book_id_to_test,
-        "name": "مسائل نافع بن الأزرق = غريب القرآن في شعر العرب",  # API field
+        "name": "مسائل نافع بن الأزرق = غريب القرآن في شعر العرب", # API field
         "meta": {
-            "id": book_id_to_test,  # meta.id from databuku.json
-            "name": "مسائل نافع بن الأزرق = غريب القرآن في شعر العرب",  # meta.name from databuku.json
-            "author_id": 263,  # from databuku.json
-            "cat_id": 4,  # from databuku.json
-            "pdf_links": api_pdf_links_data,
-        },
+            "id": book_id_to_test, # meta.id from databuku.json
+            "name": "مسائل نافع بن الأزرق = غريب القرآن في شعر العرب", # meta.name from databuku.json
+            "author_id": 263, # from databuku.json
+            "cat_id": 4, # from databuku.json
+            "pdf_links": api_pdf_links_data
+        }
         # Add other fields from api_result if they are directly used by the tool before enrichment
     }
     mock_http_response = httpx.Response(200, json=mock_api_response_json)
@@ -156,12 +156,8 @@ async def test_get_book_details_success_with_pdf_links(mocker):
     # Verifikasi hasil
     assert "error" not in actual_result
     assert actual_result.get("id") == book_id_to_test  # Dari API (top level)
-    assert (
-        actual_result.get("name") == "مسائل نافع بن الأزرق = غريب القرآن في شعر العرب"
-    )  # Dari API (top level)
-    assert (
-        actual_result.get("meta").get("pdf_links") == api_pdf_links_data
-    )  # API meta passed through
+    assert actual_result.get("name") == "مسائل نافع بن الأزرق = غريب القرآن في شعر العرب" # Dari API (top level)
+    assert actual_result.get("meta").get("pdf_links") == api_pdf_links_data # API meta passed through
     assert actual_result.get("local_book_name") == "Local Book Name"
     assert actual_result.get("local_author_name") == "Local Author Name"
     assert actual_result.get("local_category_name") == "Local Category Name"
@@ -230,7 +226,7 @@ async def test_get_book_details_success_no_pdf_links_from_api(mocker):
         "meta": {
             "some_meta": "value",
             # "pdf_links": {} # Tidak ada pdf_links atau pdf_links tidak valid
-        },
+        }
     }
     mock_http_response = httpx.Response(200, json=mock_api_response_json)
     mock_http_get.return_value = mock_http_response
@@ -243,15 +239,7 @@ async def test_get_book_details_success_no_pdf_links_from_api(mocker):
     # 4. SELECT name FROM cats WHERE id = ? (jika cat_id ada)
 
     # Data buku lokal yang akan dikembalikan (pdf_links harusnya None setelah update)
-    local_book_data_no_pdf = (
-        "Local Book Name (No PDF)",
-        102,
-        203,
-        None,
-        "Local long info no PDF",
-        "No",
-        5.0,
-    )
+    local_book_data_no_pdf = ("Local Book Name (No PDF)", 102, 203, None, "Local long info no PDF", "No", 5.0)
     local_author_data = ("Local Author Name", "800 H")
     local_category_data = ("Local Category Name",)
 
@@ -259,13 +247,11 @@ async def test_get_book_details_success_no_pdf_links_from_api(mocker):
         None,  # Hasil dari UPDATE query
         [local_book_data_no_pdf],
         [local_author_data],
-        [local_category_data],
+        [local_category_data]
     ]
 
     async with Client(mcp_server) as client:
-        result_tuple = await client.call_tool(
-            "get_book_details", {"book_id": book_id_to_test}
-        )
+        result_tuple = await client.call_tool("get_book_details", {"book_id": book_id_to_test})
 
     actual_result = result_tuple[0]
 
@@ -276,22 +262,17 @@ async def test_get_book_details_success_no_pdf_links_from_api(mocker):
     assert actual_result.get("local_book_name") == "Local Book Name (No PDF)"
     assert actual_result.get("local_author_name") == "Local Author Name"
     assert actual_result.get("local_category_name") == "Local Category Name"
-    assert actual_result.get("local_pdf_links") is None  # Penting!
+    assert actual_result.get("local_pdf_links") is None # Penting!
     assert actual_result.get("local_info_long") == "Local long info no PDF"
 
     # Verifikasi mock calls
-    mock_http_get.assert_called_once_with(
-        "/book", params={"id": book_id_to_test, "ver": 3}
-    )
-
-    assert mock_query_db.call_count == 4  # 1 update, 3 select
-
+    mock_http_get.assert_called_once_with("/book", params={"id": book_id_to_test, "ver": 3})
+    
+    assert mock_query_db.call_count == 4 # 1 update, 3 select
+    
     # Verifikasi panggilan update pdf_links ke DB (untuk mengosongkannya)
     update_db_call = mock_query_db.call_args_list[0]
-    assert (
-        update_db_call.args[0]
-        == "UPDATE books SET pdf_links = NULL, has_pdf = 0 WHERE id = ?"
-    )
+    assert update_db_call.args[0] == "UPDATE books SET pdf_links = NULL, has_pdf = 0 WHERE id = ?"
     assert update_db_call.args[1] == (book_id_to_test,)
 
 

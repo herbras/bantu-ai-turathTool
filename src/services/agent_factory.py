@@ -1,6 +1,7 @@
 import logging
 from typing import List, Optional
 from agno.tools.mcp import MCPTools
+from ..tools.mcp_wrapper import create_individual_mcp_tools
 from ..tools.tavily_service import TurathTavilyTools
 from ..tools.scientific_service import TurathScientificTools
 from ..agents.turath_query import create_turath_query_agent
@@ -17,9 +18,7 @@ class AgentService:
         self.tavily_tools: Optional[TurathTavilyTools] = None
         self.scientific_tools: Optional[TurathScientificTools] = None
 
-    def initialize_tavily_tools(
-        self, api_key: Optional[str] = None
-    ) -> TurathTavilyTools:
+    def initialize_tavily_tools(self, api_key: Optional[str] = None) -> TurathTavilyTools:
         """Initialize TavilyTools for web search"""
         try:
             self.tavily_tools = TurathTavilyTools(
@@ -28,7 +27,7 @@ class AgentService:
                 max_tokens=6000,
                 include_answer=True,
                 search_depth="advanced",
-                format="markdown",
+                format="markdown"
             )
             self.logger.info("TavilyTools initialized successfully")
             return self.tavily_tools
@@ -36,13 +35,14 @@ class AgentService:
             self.logger.warning(f"Failed to initialize TavilyTools: {e}")
             return None
 
-    def initialize_scientific_tools(
-        self, email: str = "research@turath.ai"
-    ) -> TurathScientificTools:
+    def initialize_scientific_tools(self, email: str = "research@turath.ai") -> TurathScientificTools:
         """Initialize Scientific Tools for ArXiv and PubMed search"""
         try:
             self.scientific_tools = TurathScientificTools(
-                email=email, max_results=5, include_arxiv=True, include_pubmed=True
+                email=email,
+                max_results=5,
+                include_arxiv=True,
+                include_pubmed=True
             )
             self.logger.info("Scientific Tools (ArXiv/PubMed) initialized successfully")
             return self.scientific_tools
@@ -50,12 +50,7 @@ class AgentService:
             self.logger.warning(f"Failed to initialize Scientific Tools: {e}")
             return None
 
-    async def initialize_agents(
-        self,
-        mcp_tools: MCPTools,
-        tavily_api_key: Optional[str] = None,
-        enable_scientific_search: bool = True,
-    ):
+    async def initialize_agents(self, mcp_tools: MCPTools, tavily_api_key: Optional[str] = None, enable_scientific_search: bool = True):
         """Initialize all agents and teams"""
         try:
             # Initialize TavilyTools if API key is provided
@@ -69,14 +64,12 @@ class AgentService:
                 scientific_tools = self.initialize_scientific_tools()
 
             # Create agents with MCP, Tavily, and Scientific tools
-            self.logger.info(
-                "Creating agents with MCPTools, TavilyTools, and Scientific Tools..."
-            )
+            self.logger.info("Creating agents with MCPTools, TavilyTools, and Scientific Tools...")
             turath_query_agent = create_turath_query_agent(
                 mcp_tools_instance=mcp_tools,
                 tavily_tools_instance=tavily_tools,
-                scientific_tools_instance=scientific_tools,
-            )
+                scientific_tools_instance=scientific_tools
+            ) 
             await turath_query_agent.initialize()
 
             # TurathWriterAgent and FactCheckerAgent also get MCPTools
