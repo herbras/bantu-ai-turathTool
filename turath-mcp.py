@@ -639,7 +639,7 @@ if __name__ == "__main__":
         print(f"Database SQLite ditemukan di: {DB_PATH}")
 
     port = 8001
-    host = os.getenv("MCP_HOST", "127.0.0.1")
+    host = os.getenv("MCP_HOST", "0.0.0.0")
     print(f"Memulai Turath MCP Server dengan SSE di http://{host}:{port}/sse")
     try:
         mcp_server.run(transport="sse", port=port, host=host)
