@@ -63,7 +63,8 @@ jobs:
 
     - name: Test built image
       run: |
-        docker run --rm --entrypoint="" ${{ steps.meta.outputs.tags }} python --version
+        TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+        docker run --rm --entrypoint="" $TAG python --version
 
     - name: Push Docker image
       if: github.event_name != 'pull_request'

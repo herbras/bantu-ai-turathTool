@@ -34,8 +34,8 @@ EOF
 RUN uv pip install --system --no-cache -r requirements-mcp.txt
 
 # Copy MCP server and database
-COPY turath-mcp.py ./
-COPY turath_metadata.db ./
+COPY services/turath-mcp.py ./
+COPY data/turath_metadata.db ./
 
 # Create non-root user for security
 RUN adduser -D -s /bin/sh mcp && \

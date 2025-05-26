@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir uv
 WORKDIR /app
 
 # Copy dependency files
-COPY requirements.txt pyproject.toml ./
+COPY deployment/requirements.txt pyproject.toml ./
 
 # Install Python dependencies using uv
 RUN uv pip install --system --no-cache -r requirements.txt
