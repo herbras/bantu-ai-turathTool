@@ -39,11 +39,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# Health check endpoint for Docker
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "turath-ai-agent"}
+
 origins = [
     "https://app.agno.com",
     "http://localhost",
     "http://localhost:3000",
-    "http://localhost:8000", 
+    "http://localhost:8000",
 ]
 
 app.add_middleware(

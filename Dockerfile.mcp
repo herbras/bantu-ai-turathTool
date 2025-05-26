@@ -1,0 +1,49 @@
+# Dockerfile for Turath MCP Server
+FROM python:3.12-slim as base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /app
+
+# Create requirements file for MCP server
+COPY <<EOF requirements-mcp.txt
+fastmcp==2.3.3
+httpx==0.28.1
+pydantic==2.11.4
+uvicorn==0.34.2
+aiofiles==24.2.0
+EOF
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-mcp.txt
+
+# Copy MCP server and database
+COPY turath-mcp.py ./
+COPY turath_metadata.db ./
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash mcp && \
+    chown -R mcp:mcp /app
+USER mcp
+
+# Expose port for MCP server
+EXPOSE 8001
+
+# Health check for MCP server
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8001/sse || exit 1
+
+# Run the MCP server
+CMD ["python", "turath-mcp.py"] 

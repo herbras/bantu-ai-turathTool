@@ -1,0 +1,48 @@
+# docker-compose.prod.yml
+# Production configuration for Turath AI Agent
+# Use: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+version: '3.8'
+
+services:
+  mcp-server:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - LOG_LEVEL=info
+
+  ai-agent:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - FASTAPI_ENV=production
+      - FASTAPI_DEBUG=false
+      - LOG_LEVEL=info
+
+networks:
+  ai-agent-network:
+    driver: bridge 

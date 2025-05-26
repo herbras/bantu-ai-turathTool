@@ -1,0 +1,71 @@
+# Git and version control
+.git
+.gitignore
+.github
+
+# Python cache and virtual environments
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache
+
+# Docker files
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.yaml
+.dockerignore
+
+# Development and testing
+_TEST/
+examples/
+tmp/
+.ruff_cache/
+.pytest_cache/
+
+# Documentation
+*.md
+!README.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp 
