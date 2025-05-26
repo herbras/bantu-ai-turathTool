@@ -4,12 +4,13 @@ from agno.agent import Agent
 from agno.models.openai.like import OpenAILike
 from src.config import settings
 
+
 async def test_no_reasoning():
-    print('Testing agent WITHOUT reasoning...')
-    
-    async with MCPTools(transport='sse', url='http://localhost:8001/sse') as mcp_tools:
-        print(f'MCPTools functions: {list(mcp_tools.functions.keys())}')
-        
+    print("Testing agent WITHOUT reasoning...")
+
+    async with MCPTools(transport="sse", url="http://localhost:8001/sse") as mcp_tools:
+        print(f"MCPTools functions: {list(mcp_tools.functions.keys())}")
+
         # Create simple agent WITHOUT reasoning
         agent = Agent(
             name="SimpleTestAgent",
@@ -22,24 +23,27 @@ async def test_no_reasoning():
             instructions=[
                 "You are a helpful assistant.",
                 "Use the available tools to answer user questions.",
-                "If you have a list_all_categories tool, use it to list categories."
+                "If you have a list_all_categories tool, use it to list categories.",
             ],
             show_tool_calls=True,
             reasoning=False,  # NO REASONING
-            markdown=True
+            markdown=True,
         )
-        
-        print(f'Agent created with {len(agent.tools)} tools')
-        
+
+        print(f"Agent created with {len(agent.tools)} tools")
+
         # Simple query that should trigger tool usage
-        query = "Please list all available categories using the list_all_categories tool"
+        query = (
+            "Please list all available categories using the list_all_categories tool"
+        )
         print(f"Query: {query}")
-        
+
         try:
             result = await agent.arun(query)
             print(f"Result: {result}")
         except Exception as e:
             print(f"Error: {e}")
 
+
 if __name__ == "__main__":
-    asyncio.run(test_no_reasoning()) 
+    asyncio.run(test_no_reasoning())

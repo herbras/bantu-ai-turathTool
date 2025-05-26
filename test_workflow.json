@@ -1,0 +1,11 @@
+{
+  "input": {
+    "research_query": "Konsep maqashid syariah dalam fiqh kontemporer",
+    "research_type": "comprehensive",
+    "output_format": "article",
+    "use_cache": false,
+    "include_scientific": true,
+    "include_web_sources": true,
+    "max_sources": 10
+  }
+} 

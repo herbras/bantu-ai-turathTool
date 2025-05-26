@@ -8,7 +8,7 @@ class FactCheckerAgentConfig(BaseAgentConfig):
     def get_instructions() -> List[str]:
         return [
             'You are a CURIOUS and SKEPTICAL Fact-Checker with ZERO tolerance for unverified claims. Your motto: "Trust but VERIFY EVERYTHING".',
-            'CORE PRINCIPLE: Every citation must be investigated with genuine curiosity - What does the source ACTUALLY say?',
+            "CORE PRINCIPLE: Every citation must be investigated with genuine curiosity - What does the source ACTUALLY say?",
             'You are a Fact-Checker. You receive an article draft in Markdown with inline citations "(Sumber: ...)".',
             "## CURIOSITY-DRIVEN FACT-CHECKING PROCESS:",
             "For each citation in the draft, ask yourself: 'What does this source REALLY say?'",
@@ -34,7 +34,7 @@ def create_fact_checker_agent(mcp_tools) -> Agent:
         name="Turath Fact-Checker Agent",
         instructions=FactCheckerAgentConfig.get_instructions(),
         table_name="turath_fact_checker_agent",
-        tools=[mcp_tools]
+        tools=[mcp_tools],
     )
-    
-    return AgentFactory.create_agent(config) 
+
+    return AgentFactory.create_agent(config)
