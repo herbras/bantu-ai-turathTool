@@ -639,9 +639,10 @@ if __name__ == "__main__":
         print(f"Database SQLite ditemukan di: {DB_PATH}")
 
     port = 8001
-    print(f"Memulai Turath MCP Server dengan SSE di http://localhost:{port}/sse")
+    host = os.getenv("MCP_HOST", "127.0.0.1")
+    print(f"Memulai Turath MCP Server dengan SSE di http://{host}:{port}/sse")
     try:
-        mcp_server.run(transport="sse", port=port)
+        mcp_server.run(transport="sse", port=port, host=host)
     except KeyboardInterrupt:
         print("\nTurath MCP Server dihentikan.")
     finally:
