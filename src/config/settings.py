@@ -7,13 +7,12 @@ class Settings:
     def __init__(self):
         # API Keys
         self.openrouter_api_key: str = os.getenv(
-            "OPENROUTER_API_KEY",
-            "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",
+            "OPENROUTER_API_KEY"
         )
 
         # Tavily API Key for web search (optional)
         self.tavily_api_key: str = os.getenv(
-            "TAVILY_API_KEY", "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"
+            "TAVILY_API_KEY"
         )
 
         # Database
