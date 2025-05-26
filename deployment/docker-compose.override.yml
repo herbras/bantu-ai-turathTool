@@ -1,8 +1,8 @@
 services:
   ai-agent:
     volumes:
-      - ./src:/app/src:ro
-      - ./main.py:/app/main.py:ro
+      - ../src:/app/src:ro
+      - ../main.py:/app/main.py:ro
     environment:
       - FASTAPI_ENV=development
       - FASTAPI_DEBUG=true
@@ -11,8 +11,8 @@ services:
 
   mcp-server:
     volumes:
-      - ./turath-mcp.py:/app/turath-mcp.py:ro
-      - ./turath_metadata.db:/app/turath_metadata.db:rw
+      - ../services/turath-mcp.py:/app/turath-mcp.py:ro
+      - ../data/turath_metadata.db:/app/turath_metadata.db:rw
     environment:
       - PYTHONUNBUFFERED=1
       - LOG_LEVEL=debug

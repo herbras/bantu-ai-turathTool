@@ -13,3 +13,40 @@ Harap perhatikan dengan seksama sebelum menggunakan sistem ini:
 4.  **Pentingnya Bahasa Arab:** Untuk pemahaman yang akurat dan mendalam terhadap teks-teks Turath, penguasaan Bahasa Arab yang baik adalah fundamental. Teruslah belajar dan tingkatkan kemampuan Bahasa Arab Anda.
 
 **Kesimpulan: Sistem ini adalah alat bantu awal. Kehati-hatian, verifikasi, dan pemahaman konteks dari sumber asli adalah kunci.**
+
+## Quick Start
+
+1. **Setup Environment**
+   ```bash
+   cp config/env.example .env
+   # Edit .env with your API keys
+   ```
+
+2. **Run with Docker**
+   ```bash
+   # Using helper script (recommended)
+   ./docker-compose-helper.sh up -d
+   
+   # Or from deployment directory
+   cd deployment && docker-compose up -d
+   ```
+
+## Project Structure
+
+```
+/
+├── README.md                    # This file
+├── main.py                     # Main application entry
+├── pyproject.toml              # Python project config
+├── 
+├── deployment/                 # Docker & deployment files
+├── services/                   # Service implementations
+├── data/                       # Database files
+├── config/                     # Configuration templates
+├── src/                        # Source code
+├── scripts/                    # Utility scripts
+├── _test_/                     # Test files
+└── _documentation_/            # Documentation
+```
+
+For detailed deployment instructions, see `deployment/README.md`.

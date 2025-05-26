@@ -2,13 +2,13 @@ services:
   # Turath MCP Server
   mcp-server:
     build:
-      context: .
-      dockerfile: Dockerfile.mcp
+      context: ..
+      dockerfile: deployment/Dockerfile.mcp
     container_name: turath-mcp-server
     ports:
       - "8001:8001"
     volumes:
-      - ./turath_metadata.db:/app/turath_metadata.db:ro
+      - ../data/turath_metadata.db:/app/turath_metadata.db:ro
     environment:
       - PYTHONUNBUFFERED=1
       - UV_CACHE_DIR=/tmp/uv-cache
@@ -25,8 +25,8 @@ services:
   # FastAPI AI Agent
   ai-agent:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: deployment/Dockerfile
     container_name: turath-ai-agent
     ports:
       - "8080:8000"
